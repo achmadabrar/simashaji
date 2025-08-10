@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Admin (staff asrama)
+model Admin {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  phone String?
+  asramas Asrama[]
+}
+
+// 2. Asrama Haji
+model Asrama {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  address   String
+  city      String
+  province  String
+  contactNo String
+  lat       Float
+  lng       Float
+  adminId   Int
+  admin     Admin   @relation(fields: [adminId], references: [id])
+  spaces    Space[]
+}
+
+// 3. Ruang/kamar/aula di tiap asrama
+model Space {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        SpaceType
+  capacity    Int
+  pricePerDay Decimal  @db.Decimal(10,2)
+  images      Json
+  amenities   Json
+  asramaId    Int
+  asrama      Asrama   @relation(fields: [asramaId], references: [id])
+  bookings    Booking[]
+}
+
+// 4. Booking
+model Booking {
+  id        Int           @id @default(autoincrement())
+  spaceId   Int
+  space     Space         @relation(fields: [spaceId], references: [id])
+  userEmail String
+  checkIn   DateTime
+  checkOut  DateTime
+  total     Decimal       @db.Decimal(10,2)
+  status    BookingStatus @default(PENDING)
+  snapToken String?
+  createdAt DateTime      @default(now())
+}
+
+enum SpaceType {
+  KAMAR
+  RUANG_RAPAT
+  AULA
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  CANCELLED
+}

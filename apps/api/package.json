@@ -1,0 +1,24 @@
+{
+  "name": "simashaji-api",
+  "type": "module",
+  "scripts": {
+    "db:gen": "prisma generate --schema=../../packages/db/schema.prisma",
+    "dev": "npm run db:gen && nodemon src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8",
+    "dotenv": "^17.2.1",
+    "express": "^4.19",
+    "helmet": "^7.0",
+    "midtrans-client": "^1.3",
+    "morgan": "^1.10"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.13.0",
+    "nodemon": "^3.0",
+    "prisma": "^6.13.0"
+  },
+  "prisma": {
+    "schema": "../../packages/db/schema.prisma"
+  }
+}
