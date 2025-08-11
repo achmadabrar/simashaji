@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Logo from "../../assets/logo_simashaji.png";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // Type definitions
 interface SearchFilters {
@@ -272,53 +274,178 @@ const ChevronDown = ({
   </svg>
 );
 
-const Header = () => (
-  <header className="bg-white shadow-sm border-b">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center h-16">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Image
-              src={Logo}
-              alt="Simashaji Logo"
-              width={60}
-              height={60}
-              className="rounded-full"
-            />
-            <span className="text-xl font-bold text-blue-900">Simashaji</span>
+const Header = () => {
+  const pathname = usePathname(); // Hook untuk mendapatkan path saat ini
+
+  // Function untuk menentukan apakah link sedang aktif
+  const isActivePath = (path: string) => {
+    return pathname === path;
+  };
+
+  return (
+    <header className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Link href="/">
+                <Image
+                  src={Logo}
+                  alt="Simashaji Logo"
+                  width={60}
+                  height={60}
+                  className="rounded-full cursor-pointer"
+                />
+              </Link>
+              <Link
+                href="/"
+                className="text-xl font-bold text-blue-900 hover:text-blue-700"
+              >
+                Simashaji
+              </Link>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex space-x-8">
+            <Link
+              href="/"
+              className={`font-bold transition-colors ${
+                isActivePath("/")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Beranda
+            </Link>
+            <Link
+              href="/meeting-room"
+              className={`font-bold transition-colors ${
+                isActivePath("/meeting-room")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Ruang Rapat
+            </Link>
+            <Link
+              href="/hall"
+              className={`font-bold transition-colors ${
+                isActivePath("/hall")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Aula
+            </Link>
+            <Link
+              href="/rooms"
+              className={`font-bold transition-colors ${
+                isActivePath("/rooms")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Kamar
+            </Link>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/auth"
+              className="text-gray-700 font-bold hover:text-blue-600 transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/auth"
+              className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Daftar
+            </Link>
           </div>
         </div>
+      </div>
+    </header>
+  );
+};
 
-        <nav className="hidden md:flex space-x-8">
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Beranda
-          </a>
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Ruang Rapat
-          </a>
-          <a
-            href="#"
-            className="text-blue-600 font-bold border-b-2 border-blue-600"
-          >
-            Aula
-          </a>
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Kamar
-          </a>
-        </nav>
+const NavigationLink = ({
+  href,
+  children,
+  className = "",
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
 
-        <div className="flex items-center space-x-4">
-          <button className="text-gray-700 font-bold hover:text-blue-600">
-            Masuk
-          </button>
-          <button className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors">
-            Daftar
-          </button>
+  return (
+    <Link
+      href={href}
+      className={`font-bold transition-colors ${
+        isActive
+          ? "text-blue-600 border-b-2 border-blue-600"
+          : "text-gray-700 hover:text-blue-600"
+      } ${className}`}
+    >
+      {children}
+    </Link>
+  );
+};
+
+const HeaderAlternative = () => {
+  return (
+    <header className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Link href="/">
+                <Image
+                  src={Logo}
+                  alt="Simashaji Logo"
+                  width={60}
+                  height={60}
+                  className="rounded-full cursor-pointer"
+                />
+              </Link>
+              <Link
+                href="/"
+                className="text-xl font-bold text-blue-900 hover:text-blue-700"
+              >
+                Simashaji
+              </Link>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex space-x-8">
+            <NavigationLink href="/">Beranda</NavigationLink>
+            <NavigationLink href="/meeting-room">Ruang Rapat</NavigationLink>
+            <NavigationLink href="/hall">Aula</NavigationLink>
+            <NavigationLink href="/rooms">Kamar</NavigationLink>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/auth"
+              className="text-gray-700 font-bold hover:text-blue-600 transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/auth"
+              className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Daftar
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
   const [location, setLocation] = useState("");
@@ -773,3 +900,5 @@ export default function HallRoomsPage() {
     </div>
   );
 }
+
+export { Header, HeaderAlternative, NavigationLink };

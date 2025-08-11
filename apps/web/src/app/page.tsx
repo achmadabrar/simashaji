@@ -5,6 +5,8 @@ import Logo from "../assets/logo_simashaji.png";
 import ChatIcon from "../assets/chat_icon.svg";
 import SearchIcon from "../assets/search_icon.png";
 import StarIcon from "../assets/star.png";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // Type definitions
 type TabId = "ruang-rapat" | "aula" | "kamar";
@@ -13,6 +15,12 @@ interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   activeTab: TabId;
+}
+
+interface SpaceDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  space: Space | null;
 }
 
 interface Tab {
@@ -30,6 +38,12 @@ interface Space {
   reviews: number;
   image: string;
   features: string[];
+  description?: string;
+  capacity?: string;
+  area?: string;
+  policies?: string[];
+  amenities?: string[];
+  gallery?: string[];
 }
 
 interface Feature {
@@ -103,12 +117,12 @@ const Users = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const Star = ({ size = 20, className = "" }) => (
+const Star = ({ size = 20, className = "", filled = false }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill="none"
+    fill={filled ? "currentColor" : "none"}
     stroke="currentColor"
     strokeWidth="2"
     className={className}
@@ -224,6 +238,34 @@ const ChevronDown = ({ size = 20, className = "" }) => (
   </svg>
 );
 
+const ChevronLeft = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <polyline points="15,18 9,12 15,6" />
+  </svg>
+);
+
+const ChevronRight = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <polyline points="9,18 15,12 9,6" />
+  </svg>
+);
+
 const Bed = ({ size = 20, className = "" }) => (
   <svg
     width={size}
@@ -255,50 +297,206 @@ const Moon = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const Header = () => (
-  <header className="bg-white shadow-sm border-b">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center h-16">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Image
-              src={Logo}
-              alt="Simashaji Logo"
-              width={60}
-              height={60}
-              className="rounded-full"
-            />
-            <span className="text-xl font-bold text-blue-900">Simashaji</span>
+const Check = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <polyline points="20,6 9,17 4,12" />
+  </svg>
+);
+
+const Home = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9,22 9,12 15,12 15,22" />
+  </svg>
+);
+
+const Header = () => {
+  const pathname = usePathname();
+
+  const isActivePath = (path: string) => {
+    return pathname === path;
+  };
+
+  return (
+    <header className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Link href="/">
+                <Image
+                  src={Logo}
+                  alt="Simashaji Logo"
+                  width={60}
+                  height={60}
+                  className="rounded-full cursor-pointer"
+                />
+              </Link>
+              <Link
+                href="/"
+                className="text-xl font-bold text-blue-900 hover:text-blue-700"
+              >
+                Simashaji
+              </Link>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex space-x-8">
+            <Link
+              href="/"
+              className={`font-bold transition-colors ${
+                isActivePath("/")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Beranda
+            </Link>
+            <Link
+              href="/meeting-room"
+              className={`font-bold transition-colors ${
+                isActivePath("/meeting-room")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Ruang Rapat
+            </Link>
+            <Link
+              href="/hall"
+              className={`font-bold transition-colors ${
+                isActivePath("/hall")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Aula
+            </Link>
+            <Link
+              href="/rooms"
+              className={`font-bold transition-colors ${
+                isActivePath("/rooms")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Kamar
+            </Link>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/auth"
+              className="text-gray-700 font-bold hover:text-blue-600 transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/auth"
+              className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Daftar
+            </Link>
           </div>
         </div>
+      </div>
+    </header>
+  );
+};
 
-        <nav className="hidden md:flex space-x-8">
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Beranda
-          </a>
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Ruang Rapat
-          </a>
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Aula
-          </a>
-          <a href="#" className="text-gray-700 font-bold hover:text-blue-600">
-            Kamar
-          </a>
-        </nav>
+const NavigationLink = ({
+  href,
+  children,
+  className = "",
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
 
-        <div className="flex items-center space-x-4">
-          <button className="text-gray-700 font-bold hover:text-blue-600">
-            Masuk
-          </button>
-          <button className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors">
-            Daftar
-          </button>
+  return (
+    <Link
+      href={href}
+      className={`font-bold transition-colors ${
+        isActive
+          ? "text-blue-600 border-b-2 border-blue-600"
+          : "text-gray-700 hover:text-blue-600"
+      } ${className}`}
+    >
+      {children}
+    </Link>
+  );
+};
+
+const HeaderAlternative = () => {
+  return (
+    <header className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Link href="/">
+                <Image
+                  src={Logo}
+                  alt="Simashaji Logo"
+                  width={60}
+                  height={60}
+                  className="rounded-full cursor-pointer"
+                />
+              </Link>
+              <Link
+                href="/"
+                className="text-xl font-bold text-blue-900 hover:text-blue-700"
+              >
+                Simashaji
+              </Link>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex space-x-8">
+            <NavigationLink href="/">Beranda</NavigationLink>
+            <NavigationLink href="/meeting-room">Ruang Rapat</NavigationLink>
+            <NavigationLink href="/hall">Aula</NavigationLink>
+            <NavigationLink href="/rooms">Kamar</NavigationLink>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/auth"
+              className="text-gray-700 font-bold hover:text-blue-600 transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/auth"
+              className="bg-blue-600 text-white px-4 py-2 font-bold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Daftar
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 const BookingModal = ({ isOpen, onClose, activeTab }: BookingModalProps) => {
   const [location, setLocation] = useState("");
@@ -467,6 +665,370 @@ const BookingModal = ({ isOpen, onClose, activeTab }: BookingModalProps) => {
   );
 };
 
+// New Space Detail Modal Component
+const SpaceDetailModal = ({
+  isOpen,
+  onClose,
+  space,
+}: SpaceDetailModalProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState("2025-08-11");
+  const [selectedTime, setSelectedTime] = useState("09:00");
+
+  if (!isOpen || !space) return null;
+
+  const images = space.gallery || [space.image];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const getFeatureIcon = (feature: string): React.ReactNode => {
+    switch (feature) {
+      case "WiFi":
+        return <Wifi size={20} />;
+      case "Proyektor":
+        return <Search size={20} />;
+      case "AC":
+        return <Clock size={20} />;
+      case "Coffee":
+        return <Coffee size={20} />;
+      case "Sound System":
+        return <MessageCircle size={20} />;
+      case "Stage":
+        return <Home size={20} />;
+      case "Catering":
+        return <Coffee size={20} />;
+      case "King Bed":
+        return <Bed size={20} />;
+      case "Mini Bar":
+        return <Coffee size={20} />;
+      case "City View":
+        return <MapPin size={20} />;
+      default:
+        return <Check size={20} />;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white p-6 border-b z-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">{space.name}</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex items-center mt-2 text-gray-600">
+            <MapPin size={16} className="mr-1" />
+            <span>{space.location}</span>
+            <div className="ml-4 flex items-center">
+              <Star className="text-yellow-400 fill-current mr-1" size={16} />
+              <span className="font-medium">{space.rating}</span>
+              <span className="ml-1">({space.reviews} ulasan)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          {/* Image Gallery */}
+          <div className="relative mb-6">
+            <div className="relative h-80 rounded-lg overflow-hidden">
+              <img
+                src={images[currentImageIndex]}
+                alt={`${space.name} - Image ${currentImageIndex + 1}`}
+                className="w-full h-full object-cover"
+              />
+
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+
+                  {/* Image indicators */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-3 h-3 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? "bg-white"
+                            : "bg-white bg-opacity-50"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-3">Deskripsi</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {space.description ||
+                    `${space.name} adalah ruang berkualitas tinggi yang berlokasi di ${space.location}. Dilengkapi dengan fasilitas modern dan pelayanan terbaik untuk memenuhi kebutuhan Anda. Ruang ini sangat cocok untuk berbagai kegiatan dan acara penting.`}
+                </p>
+              </div>
+
+              {/* Specifications */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-3">
+                  Spesifikasi Ruang
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <Users className="text-blue-600" size={20} />
+                    <div>
+                      <span className="font-medium">Kapasitas:</span>
+                      <span className="ml-2 text-gray-600">
+                        {space.capacity || "10-20 orang"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Home className="text-blue-600" size={20} />
+                    <div>
+                      <span className="font-medium">Luas Area:</span>
+                      <span className="ml-2 text-gray-600">
+                        {space.area || "50 m²"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features & Amenities */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-3">
+                  Fasilitas & Amenities
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {space.features.map((feature, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="text-blue-600">
+                        {getFeatureIcon(feature)}
+                      </div>
+                      <span className="font-medium">{feature}</span>
+                    </div>
+                  ))}
+                  {space.amenities &&
+                    space.amenities.map((amenity, index) => (
+                      <div
+                        key={`amenity-${index}`}
+                        className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="text-green-600">
+                          <Check size={20} />
+                        </div>
+                        <span className="font-medium">{amenity}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Policies */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-3">
+                  Kebijakan & Aturan
+                </h3>
+                <div className="space-y-2">
+                  {(
+                    space.policies || [
+                      "Pembayaran dapat dilakukan melalui transfer bank atau tunai",
+                      "Pembatalan dapat dilakukan 24 jam sebelum waktu booking",
+                      "Dilarang merokok di dalam ruangan",
+                      "Maksimal overtime 1 jam dengan biaya tambahan",
+                      "Wajib menjaga kebersihan ruangan",
+                    ]
+                  ).map((policy, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <Check className="text-green-500 mt-0.5" size={16} />
+                      <span className="text-gray-600 text-sm">{policy}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reviews Section */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-3">Ulasan Pengguna</h3>
+                <div className="space-y-4">
+                  {/* Sample Reviews */}
+                  <div className="border-b pb-4">
+                    <div className="flex items-center mb-2">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={16}
+                            className="text-yellow-400 fill-current"
+                            filled={true}
+                          />
+                        ))}
+                      </div>
+                      <span className="ml-2 font-medium">Budi Santoso</span>
+                      <span className="ml-2 text-gray-500 text-sm">
+                        2 hari lalu
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Ruangan sangat nyaman dan bersih. Fasilitas lengkap dan
+                      pelayanan memuaskan. Sangat recommended untuk meeting
+                      kantor.
+                    </p>
+                  </div>
+                  <div className="border-b pb-4">
+                    <div className="flex items-center mb-2">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4].map((star) => (
+                          <Star
+                            key={star}
+                            size={16}
+                            className="text-yellow-400 fill-current"
+                            filled={true}
+                          />
+                        ))}
+                        <Star size={16} className="text-gray-300" />
+                      </div>
+                      <span className="ml-2 font-medium">Sari Dewi</span>
+                      <span className="ml-2 text-gray-500 text-sm">
+                        1 minggu lalu
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Lokasi strategis dan mudah dijangkau. AC dingin, WiFi
+                      kencang. Hanya saja parkir agak terbatas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Booking Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+                  {/* Price */}
+                  <div className="text-center mb-6">
+                    <span className="text-3xl font-bold text-blue-600">
+                      Rp {parseInt(space.price).toLocaleString("id-ID")}
+                    </span>
+                    <span className="text-gray-600 ml-1">/hari</span>
+                  </div>
+
+                  {/* Quick Booking Form */}
+                  <div className="space-y-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tanggal Booking
+                      </label>
+                      <div className="relative">
+                        <Calendar
+                          className="absolute left-3 top-3 text-gray-400"
+                          size={16}
+                        />
+                        <input
+                          type="date"
+                          value={selectedDate}
+                          onChange={(e) => setSelectedDate(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Waktu Mulai
+                      </label>
+                      <div className="relative">
+                        <Clock
+                          className="absolute left-3 top-3 text-gray-400"
+                          size={16}
+                        />
+                        <select
+                          value={selectedTime}
+                          onChange={(e) => setSelectedTime(e.target.value)}
+                          className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                        >
+                          <option value="08:00">08:00</option>
+                          <option value="09:00">09:00</option>
+                          <option value="10:00">10:00</option>
+                          <option value="11:00">11:00</option>
+                          <option value="13:00">13:00</option>
+                          <option value="14:00">14:00</option>
+                          <option value="15:00">15:00</option>
+                          <option value="16:00">16:00</option>
+                        </select>
+                        <ChevronDown
+                          className="absolute right-3 top-3 text-gray-400"
+                          size={16}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Booking Buttons */}
+                  <div className="space-y-3">
+                    <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                      Booking Sekarang
+                    </button>
+                    <button className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                      Tambah ke Favorit
+                    </button>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="mt-6 pt-6 border-t">
+                    <h4 className="font-semibold mb-3">Butuh Bantuan?</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <Phone size={16} />
+                        <span>+62 21 1234 5678</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <MessageCircle size={16} />
+                        <span>WhatsApp Support</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SearchSection = () => {
   const [activeTab, setActiveTab] = useState<TabId>("ruang-rapat");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -605,6 +1167,9 @@ const SearchSection = () => {
 };
 
 const FeaturedSpaces = () => {
+  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const spaces: Space[] = [
     {
       id: 1,
@@ -616,6 +1181,23 @@ const FeaturedSpaces = () => {
       image:
         "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=250&fit=crop",
       features: ["WiFi", "Proyektor", "AC", "Coffee"],
+      description:
+        "Ruang meeting premium dengan fasilitas lengkap dan modern. Cocok untuk presentasi bisnis, workshop, dan rapat penting. Dilengkapi dengan teknologi terkini untuk mendukung produktivitas tim Anda.",
+      capacity: "10-15 orang",
+      area: "45 m²",
+      amenities: ["Whiteboard", "Flip Chart", "Sound System", "Parkir Gratis"],
+      policies: [
+        "Pembayaran dapat dilakukan melalui transfer bank atau tunai",
+        "Pembatalan dapat dilakukan 24 jam sebelum waktu booking",
+        "Dilarang merokok di dalam ruangan",
+        "Maksimal overtime 1 jam dengan biaya tambahan",
+        "Wajib menjaga kebersihan ruangan",
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1541746972996-4e0b0f93e586?w=600&h=400&fit=crop",
+      ],
     },
     {
       id: 2,
@@ -627,6 +1209,23 @@ const FeaturedSpaces = () => {
       image:
         "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=250&fit=crop",
       features: ["Sound System", "Stage", "AC", "Catering"],
+      description:
+        "Ballroom mewah dengan kapasitas besar, ideal untuk event, seminar, dan celebration. Dilengkapi dengan stage profesional dan sistem audio visual berkualitas tinggi.",
+      capacity: "200-500 orang",
+      area: "500 m²",
+      amenities: ["LED Screen", "Lighting System", "Security", "Valet Parking"],
+      policies: [
+        "Booking minimal 7 hari sebelum acara",
+        "DP 50% saat konfirmasi booking",
+        "Pelunasan 3 hari sebelum acara",
+        "Decorasi dapat disesuaikan dengan kebutuhan",
+        "Catering dapat dari vendor sendiri atau rekomendasi kami",
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
+      ],
     },
     {
       id: 3,
@@ -638,6 +1237,23 @@ const FeaturedSpaces = () => {
       image:
         "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop",
       features: ["King Bed", "WiFi", "Mini Bar", "City View"],
+      description:
+        "Suite mewah dengan pemandangan kota yang menakjubkan. Dilengkapi dengan fasilitas premium untuk pengalaman menginap yang tak terlupakan.",
+      capacity: "2 orang",
+      area: "75 m²",
+      amenities: ["Room Service", "Laundry", "Gym Access", "Pool Access"],
+      policies: [
+        "Check-in 14:00, Check-out 12:00",
+        "Deposit Rp 500.000 saat check-in",
+        "Pembatalan gratis 48 jam sebelumnya",
+        "Extra bed tersedia dengan biaya tambahan",
+        "Smoking room dan non-smoking tersedia",
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop",
+        "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&h=400&fit=crop",
+      ],
     },
   ];
 
@@ -654,80 +1270,105 @@ const FeaturedSpaces = () => {
     }
   };
 
+  const handleViewDetail = (space: Space) => {
+    setSelectedSpace(space);
+    setIsDetailModalOpen(true);
+  };
+
   return (
-    <div className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Ruang Pilihan Terbaik
-          </h2>
-          <p className="text-gray-600">
-            Dipilih khusus untuk pengalaman terbaik Anda
-          </p>
-        </div>
+    <>
+      <div className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Ruang Pilihan Terbaik
+            </h2>
+            <p className="text-gray-600">
+              Dipilih khusus untuk pengalaman terbaik Anda
+            </p>
+          </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {spaces.map((space) => (
-            <div
-              key={space.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="relative">
-                <img
-                  src={space.image}
-                  alt={space.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full">
-                  <div className="flex items-center space-x-1">
-                    <Star className="text-yellow-400 fill-current" size={16} />
-                    <span className="text-sm font-medium">{space.rating}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6">
-                <h3 className="font-bold text-lg mb-2 text-gray-900">
-                  {space.name}
-                </h3>
-                <div className="flex items-center text-gray-600 mb-3">
-                  <MapPin size={16} className="mr-1" />
-                  <span className="text-sm">{space.location}</span>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {space.features.map((feature) => (
-                    <div
-                      key={feature}
-                      className="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-full text-xs"
-                    >
-                      {getFeatureIcon(feature)}
-                      <span>{feature}</span>
+          <div className="grid md:grid-cols-3 gap-8">
+            {spaces.map((space) => (
+              <div
+                key={space.id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="relative">
+                  <img
+                    src={space.image}
+                    alt={space.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full">
+                    <div className="flex items-center space-x-1">
+                      <Star
+                        className="text-yellow-400 fill-current"
+                        size={16}
+                      />
+                      <span className="text-sm font-medium">
+                        {space.rating}
+                      </span>
                     </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-2xl font-bold text-blue-600">
-                      Rp {parseInt(space.price).toLocaleString("id-ID")}
-                    </span>
-                    <span className="text-gray-600 text-sm">/hari</span>
                   </div>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    Lihat Detail
-                  </button>
                 </div>
 
-                <div className="mt-3 text-sm text-gray-600">
-                  {space.reviews} ulasan
+                <div className="p-6">
+                  <h3 className="font-bold text-lg mb-2 text-gray-900">
+                    {space.name}
+                  </h3>
+                  <div className="flex items-center text-gray-600 mb-3">
+                    <MapPin size={16} className="mr-1" />
+                    <span className="text-sm">{space.location}</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {space.features.map((feature) => (
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-full text-xs"
+                      >
+                        {getFeatureIcon(feature)}
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-2xl font-bold text-blue-600">
+                        Rp {parseInt(space.price).toLocaleString("id-ID")}
+                      </span>
+                      <span className="text-gray-600 text-sm">/hari</span>
+                    </div>
+                    <button
+                      onClick={() => handleViewDetail(space)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Lihat Detail
+                    </button>
+                  </div>
+
+                  <div className="mt-3 text-sm text-gray-600">
+                    {space.reviews} ulasan
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Space Detail Modal */}
+      <SpaceDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedSpace(null);
+        }}
+        space={selectedSpace}
+      />
+    </>
   );
 };
 
@@ -790,13 +1431,7 @@ const Footer = () => (
       <div className="grid md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center space-x-2 mb-4">
-            <Image
-              src={Logo}
-              alt="Simashaji Logo"
-              width={60}
-              height={60}
-              // Hapus className="rounded-full" untuk menghilangkan lingkaran putih
-            />
+            <Image src={Logo} alt="Simashaji Logo" width={60} height={60} />
             <span className="text-xl font-bold">Simashaji</span>
           </div>
           <p className="text-gray-400">
@@ -879,3 +1514,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export { Header, HeaderAlternative, NavigationLink };

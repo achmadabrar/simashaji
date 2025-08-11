@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Logo from "../../assets/logo_simashaji.png";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // Icon components
 const Mail = ({
