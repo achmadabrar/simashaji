@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 // Type definitions
-type TabId = "ruang-rapat" | "aula" | "kamar";
+type TabId = "ruang-rapat" | "aula" | "kamar" | "manasik";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -283,6 +283,21 @@ const Bed = ({ size = 20, className = "" }) => (
   </svg>
 );
 
+const Compass = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" />
+  </svg>
+);
+
 const Moon = ({ size = 20, className = "" }) => (
   <svg
     width={size}
@@ -334,7 +349,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
@@ -397,6 +412,16 @@ const Header = () => {
               }`}
             >
               Kamar
+            </Link>
+            <Link
+              href="/manasik"
+              className={`font-bold transition-colors ${
+                isActivePath("/manasik")
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-700 hover:text-blue-600"
+              }`}
+            >
+              Manasik
             </Link>
           </nav>
 
@@ -476,6 +501,7 @@ const HeaderAlternative = () => {
             <NavigationLink href="/meeting-room">Ruang Rapat</NavigationLink>
             <NavigationLink href="/hall">Aula</NavigationLink>
             <NavigationLink href="/rooms">Kamar</NavigationLink>
+            <NavigationLink href="/manasik">Manasik</NavigationLink>
           </nav>
 
           <div className="flex items-center space-x-4">
@@ -507,18 +533,39 @@ const BookingModal = ({ isOpen, onClose, activeTab }: BookingModalProps) => {
 
   if (!isOpen) return null;
 
+  const getModalTitle = () => {
+    switch (activeTab) {
+      case "kamar":
+        return "Hotel yang Terakhir Dilihat";
+      case "manasik":
+        return "Panduan Manasik Haji & Umrah";
+      default:
+        return "Cari Ruang";
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         {/* Header */}
-        <div className="bg-blue-50 p-6 border-b">
+        <div
+          className={`${
+            activeTab === "manasik" ? "bg-green-50" : "bg-blue-50"
+          } p-6 border-b`}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Search className="text-blue-600" size={24} />
-              <span className="text-blue-600 font-semibold text-lg">
-                {activeTab === "kamar"
-                  ? "Hotel yang Terakhir Dilihat"
-                  : "Cari Ruang"}
+              {activeTab === "manasik" ? (
+                <Compass className="text-green-600" size={24} />
+              ) : (
+                <Search className="text-blue-600" size={24} />
+              )}
+              <span
+                className={`${
+                  activeTab === "manasik" ? "text-green-600" : "text-blue-600"
+                } font-semibold text-lg`}
+              >
+                {getModalTitle()}
               </span>
             </div>
             <button
@@ -532,133 +579,203 @@ const BookingModal = ({ isOpen, onClose, activeTab }: BookingModalProps) => {
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Location Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kota, tujuan, atau nama hotel
-            </label>
-            <div className="relative">
-              <MapPin
-                className="absolute left-3 top-3 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="Kota, hotel, tempat wisata"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
+          {activeTab === "manasik" ? (
+            // Manasik Content
+            <div className="text-center space-y-6">
+              <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-lg">
+                <Compass className="mx-auto mb-4 text-green-600" size={48} />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Panduan Lengkap Manasik
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Pelajari tata cara ibadah haji dan umrah yang benar dengan
+                  panduan komprehensif
+                </p>
+              </div>
 
-          {/* Date Section */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Check-in:
-              </label>
-              <div className="relative">
-                <Calendar
-                  className="absolute left-3 top-3 text-gray-400"
-                  size={16}
-                />
-                <input
-                  type="date"
-                  value={checkInDate}
-                  onChange={(e) => setCheckInDate(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-800 mb-2">
+                    Panduan Haji
+                  </h4>
+                  <p className="text-green-600 text-sm">
+                    Tata cara lengkap rukun Islam kelima
+                  </p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-800 mb-2">
+                    Panduan Umrah
+                  </h4>
+                  <p className="text-blue-600 text-sm">
+                    Ibadah sunnah yang mulia
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <span className="text-sm font-medium">Doa-doa Penting</span>
+                  <ChevronRight className="text-gray-400" size={16} />
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <span className="text-sm font-medium">Video Tutorial</span>
+                  <ChevronRight className="text-gray-400" size={16} />
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <span className="text-sm font-medium">FAQ Manasik</span>
+                  <ChevronRight className="text-gray-400" size={16} />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-4">
+                <button
+                  onClick={onClose}
+                  className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Compass size={20} />
+                  <span>Lihat Panduan Lengkap</span>
+                </button>
+                <button className="w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+                  Download PDF Panduan
+                </button>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Check-out:
-              </label>
-              <div className="text-sm font-medium text-gray-900 py-3">
-                Sel, 12 Ags 2025
+          ) : (
+            // Original booking form for other tabs
+            <>
+              {/* Location Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kota, tujuan, atau nama hotel
+                </label>
+                <div className="relative">
+                  <MapPin
+                    className="absolute left-3 top-3 text-gray-400"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Kota, hotel, tempat wisata"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Duration */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Durasi
-            </label>
-            <div className="relative">
-              <Moon className="absolute left-3 top-3 text-gray-400" size={16} />
-              <select
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-sm"
+              {/* Date Section */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Check-in:
+                  </label>
+                  <div className="relative">
+                    <Calendar
+                      className="absolute left-3 top-3 text-gray-400"
+                      size={16}
+                    />
+                    <input
+                      type="date"
+                      value={checkInDate}
+                      onChange={(e) => setCheckInDate(e.target.value)}
+                      className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Check-out:
+                  </label>
+                  <div className="text-sm font-medium text-gray-900 py-3">
+                    Sel, 12 Ags 2025
+                  </div>
+                </div>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Durasi
+                </label>
+                <div className="relative">
+                  <Moon
+                    className="absolute left-3 top-3 text-gray-400"
+                    size={16}
+                  />
+                  <select
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    className="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-sm"
+                  >
+                    <option value="1 malam">1 malam</option>
+                    <option value="2 malam">2 malam</option>
+                    <option value="3 malam">3 malam</option>
+                    <option value="1 minggu">1 minggu</option>
+                  </select>
+                  <ChevronDown
+                    className="absolute right-3 top-3 text-gray-400"
+                    size={16}
+                  />
+                </div>
+              </div>
+
+              {/* Guests and Rooms */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tamu dan Kamar
+                </label>
+                <div className="relative">
+                  <Users
+                    className="absolute left-3 top-3 text-gray-400"
+                    size={16}
+                  />
+                  <select
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                    className="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-sm"
+                  >
+                    <option value="2 Dewasa, 0 Anak, 1 Kamar">
+                      2 Dewasa, 0 Anak, 1 Kamar
+                    </option>
+                    <option value="1 Dewasa, 0 Anak, 1 Kamar">
+                      1 Dewasa, 0 Anak, 1 Kamar
+                    </option>
+                    <option value="2 Dewasa, 1 Anak, 1 Kamar">
+                      2 Dewasa, 1 Anak, 1 Kamar
+                    </option>
+                    <option value="4 Dewasa, 0 Anak, 2 Kamar">
+                      4 Dewasa, 0 Anak, 2 Kamar
+                    </option>
+                  </select>
+                  <ChevronDown
+                    className="absolute right-3 top-3 text-gray-400"
+                    size={16}
+                  />
+                </div>
+              </div>
+
+              {/* Pay at Hotel Option */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-2 text-blue-600">
+                  <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">$</span>
+                  </div>
+                  <span className="text-sm font-medium">Bayar di Hotel</span>
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <button
+                onClick={onClose}
+                className="w-full bg-orange-500 text-white py-4 rounded-lg font-semibold text-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
               >
-                <option value="1 malam">1 malam</option>
-                <option value="2 malam">2 malam</option>
-                <option value="3 malam">3 malam</option>
-                <option value="1 minggu">1 minggu</option>
-              </select>
-              <ChevronDown
-                className="absolute right-3 top-3 text-gray-400"
-                size={16}
-              />
-            </div>
-          </div>
-
-          {/* Guests and Rooms */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tamu dan Kamar
-            </label>
-            <div className="relative">
-              <Users
-                className="absolute left-3 top-3 text-gray-400"
-                size={16}
-              />
-              <select
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-sm"
-              >
-                <option value="2 Dewasa, 0 Anak, 1 Kamar">
-                  2 Dewasa, 0 Anak, 1 Kamar
-                </option>
-                <option value="1 Dewasa, 0 Anak, 1 Kamar">
-                  1 Dewasa, 0 Anak, 1 Kamar
-                </option>
-                <option value="2 Dewasa, 1 Anak, 1 Kamar">
-                  2 Dewasa, 1 Anak, 1 Kamar
-                </option>
-                <option value="4 Dewasa, 0 Anak, 2 Kamar">
-                  4 Dewasa, 0 Anak, 2 Kamar
-                </option>
-              </select>
-              <ChevronDown
-                className="absolute right-3 top-3 text-gray-400"
-                size={16}
-              />
-            </div>
-          </div>
-
-          {/* Pay at Hotel Option */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-2 text-blue-600">
-              <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">$</span>
-              </div>
-              <span className="text-sm font-medium">Bayar di Hotel</span>
-            </div>
-          </div>
-
-          {/* Search Button */}
-          <button
-            onClick={onClose}
-            className="w-full bg-orange-500 text-white py-4 rounded-lg font-semibold text-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
-          >
-            <Search size={20} />
-            <span>Cari</span>
-          </button>
+                <Search size={20} />
+                <span>Cari</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -1040,12 +1157,105 @@ const SearchSection = () => {
     { id: "ruang-rapat", label: "Ruang Rapat", icon: Users },
     { id: "aula", label: "Aula", icon: MapPin },
     { id: "kamar", label: "Kamar", icon: Bed },
+    { id: "manasik", label: "Manasik", icon: Compass },
   ];
 
   const handleTabClick = (tabId: TabId) => {
     setActiveTab(tabId);
-    if (tabId === "kamar") {
+    if (tabId === "kamar" || tabId === "manasik") {
       setIsModalOpen(true);
+    }
+  };
+
+  const getTabContent = () => {
+    if (activeTab === "kamar") {
+      return (
+        <div className="text-center py-8">
+          <Bed className="mx-auto mb-4 text-blue-600" size={48} />
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Pencarian Hotel & Kamar
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Klik tab Kamar untuk membuka form pencarian hotel
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Buka Pencarian Hotel
+          </button>
+        </div>
+      );
+    } else if (activeTab === "manasik") {
+      return (
+        <div className="text-center py-8">
+          <Compass className="mx-auto mb-4 text-green-600" size={48} />
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Panduan Manasik Haji & Umrah
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Akses panduan lengkap tata cara ibadah haji dan umrah
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+            >
+              <Compass size={20} />
+              <span>Lihat Panduan</span>
+            </button>
+            <Link
+              href="/manasik"
+              className="border border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center space-x-2"
+            >
+              <span>Halaman Manasik</span>
+            </Link>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="grid md:grid-cols-4 gap-4">
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Lokasi"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+            />
+          </div>
+
+          <div className="relative">
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-400"
+            />
+          </div>
+
+          <div className="relative">
+            <Users className="absolute left-3 top-3 text-gray-400" size={20} />
+            <select
+              value={capacity}
+              onChange={(e) => setCapacity(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-400"
+            >
+              <option value="">Kapasitas</option>
+              <option value="1-10">1-10 orang</option>
+              <option value="11-25">11-25 orang</option>
+              <option value="26-50">26-50 orang</option>
+              <option value="50+">50+ orang</option>
+            </select>
+          </div>
+
+          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+            <span>Cari</span>
+          </button>
+        </div>
+      );
     }
   };
 
@@ -1058,100 +1268,37 @@ const SearchSection = () => {
               Temukan Ruang Ideal untuk Kebutuhan Anda
             </h1>
             <p className="text-xl text-gray-600">
-              Sewa ruang rapat, aula, dan kamar dengan mudah dan terpercaya
+              Sewa ruang rapat, aula, kamar, dan akses panduan manasik dengan
+              mudah dan terpercaya
             </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
             {/* Tabs */}
-            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
+            <div className="flex flex-wrap space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all min-w-0 ${
                       activeTab === tab.id
-                        ? "bg-white text-blue-600 shadow-sm"
+                        ? tab.id === "manasik"
+                          ? "bg-white text-green-600 shadow-sm"
+                          : "bg-white text-blue-600 shadow-sm"
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     <Icon size={20} />
-                    <span>{tab.label}</span>
+                    <span className="text-sm sm:text-base">{tab.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Search Form - Only show for non-kamar tabs */}
-            {activeTab !== "kamar" && (
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="relative">
-                  <MapPin
-                    className="absolute left-3 top-3 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Lokasi"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  />
-                </div>
-
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-400"
-                  />
-                </div>
-
-                <div className="relative">
-                  <Users
-                    className="absolute left-3 top-3 text-gray-400"
-                    size={20}
-                  />
-                  <select
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-400"
-                  >
-                    <option value="">Kapasitas</option>
-                    <option value="1-10">1-10 orang</option>
-                    <option value="11-25">11-25 orang</option>
-                    <option value="26-50">26-50 orang</option>
-                    <option value="50+">50+ orang</option>
-                  </select>
-                </div>
-
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
-                  <span>Cari</span>
-                </button>
-              </div>
-            )}
-
-            {/* Kamar tab message */}
-            {activeTab === "kamar" && (
-              <div className="text-center py-8">
-                <Bed className="mx-auto mb-4 text-blue-600" size={48} />
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Pencarian Hotel & Kamar
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Klik tab Kamar untuk membuka form pencarian hotel
-                </p>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Buka Pencarian Hotel
-                </button>
-              </div>
-            )}
+            {/* Tab Content */}
+            {getTabContent()}
           </div>
         </div>
       </div>
@@ -1387,7 +1534,7 @@ const WhyChooseUs = () => {
         "Tim support kami siap membantu Anda kapan saja melalui WhatsApp",
     },
     {
-      icon: <Image src={StarIcon} alt="Search Icon" width={60} height={60} />,
+      icon: <Image src={StarIcon} alt="Star Icon" width={60} height={60} />,
       title: "Kualitas Terjamin",
       description:
         "Semua ruang telah terverifikasi dan memiliki standar kualitas tinggi",
@@ -1399,23 +1546,21 @@ const WhyChooseUs = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Mengapa Pilih Simashaji?
+            Kenapa Pilih Simashaji?
           </h2>
           <p className="text-gray-600">
-            Kami memberikan pengalaman terbaik untuk kebutuhan ruang Anda
+            Kami memberikan pengalaman terbaik untuk kebutuhan ruang dan panduan
+            ibadah Anda
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="text-center">
-              <div className="text-blue-600 mb-4 flex justify-center">
-                {feature.icon}
-              </div>
-              <h3 className="font-bold text-xl mb-3 text-gray-400">
+              <div className="mb-4 flex justify-center">{feature.icon}</div>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">
                 {feature.title}
               </h3>
-
               <p className="text-gray-600">{feature.description}</p>
             </div>
           ))}
@@ -1435,7 +1580,8 @@ const Footer = () => (
             <span className="text-xl font-bold">Simashaji</span>
           </div>
           <p className="text-gray-400">
-            Platform terpercaya untuk menyewa ruang rapat, aula, dan kamar
+            Platform terpercaya untuk menyewa ruang rapat, aula, kamar, dan
+            panduan manasik
           </p>
         </div>
 
@@ -1456,6 +1602,11 @@ const Footer = () => (
               <a href="#" className="hover:text-white">
                 Kamar
               </a>
+            </li>
+            <li>
+              <Link href="/manasik" className="hover:text-white">
+                Manasik
+              </Link>
             </li>
           </ul>
         </div>
