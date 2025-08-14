@@ -283,6 +283,25 @@ const Bed = ({ size = 20, className = "" }) => (
   </svg>
 );
 
+const Kaaba = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Kotak utama Ka'bah */}
+    <rect x="5" y="5" width="14" height="14" />
+    {/* Garis horizontal putih (Kiswah bagian atas) */}
+    <line x1="5" y1="9" x2="19" y2="9" />
+  </svg>
+);
+
 const Compass = ({ size = 20, className = "" }) => (
   <svg
     width={size}
@@ -556,7 +575,7 @@ const BookingModal = ({ isOpen, onClose, activeTab }: BookingModalProps) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {activeTab === "manasik" ? (
-                <Compass className="text-green-600" size={24} />
+                <Kaaba className="text-green-600" size={24} />
               ) : (
                 <Search className="text-blue-600" size={24} />
               )}
@@ -1157,7 +1176,7 @@ const SearchSection = () => {
     { id: "ruang-rapat", label: "Ruang Rapat", icon: Users },
     { id: "aula", label: "Aula", icon: MapPin },
     { id: "kamar", label: "Kamar", icon: Bed },
-    { id: "manasik", label: "Manasik", icon: Compass },
+    { id: "manasik", label: "Manasik", icon: Kaaba },
   ];
 
   const handleTabClick = (tabId: TabId) => {

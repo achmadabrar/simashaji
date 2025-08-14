@@ -1,197 +1,108 @@
-// apps/web/src/lib/api.ts
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  message: string;
-  data?: T;
-}
+// API Health Check Function
+export const checkApiHealth = async (): Promise<boolean> => {
+  try {
+    console.log(`Checking API health at: ${API_BASE_URL}/api/health`);
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  birth_date?: string;
-  address?: string;
-  profile_image?: string;
-  membership_type: "REGULAR" | "PREMIUM" | "VIP";
-  points: number;
-  rating: number;
-  total_bookings: number;
-  joined_at: string;
-  last_active: string;
-  is_email_verified: boolean;
-}
+    const response = await fetch(`${API_BASE_URL}/api/health`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Add timeout
+      signal: AbortSignal.timeout(5000), // 5 seconds
+    });
 
-export interface AuthData {
-  user: User;
-  token: string;
-  tokenType: string;
-}
-
-// Token management
-const tokenManagerObj = {
-  getToken: (): string | null => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("simashaji_token");
-  },
-
-  setToken: (token: string): void => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("simashaji_token", token);
-  },
-
-  removeToken: (): void => {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem("simashaji_token");
-    localStorage.removeItem("simashaji_user");
-  },
-
-  getUser: (): User | null => {
-    if (typeof window === "undefined") return null;
-    const user = localStorage.getItem("simashaji_user");
-    return user ? JSON.parse(user) : null;
-  },
-
-  setUser: (user: User): void => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("simashaji_user", JSON.stringify(user));
-  },
-
-  isAuthenticated: (): boolean => {
-    return !!tokenManagerObj.getToken();
-  },
+    if (response.ok) {
+      const data = await response.json();
+      console.log("API Health Check Success:", data);
+      return true;
+    } else {
+      console.error("API Health Check Failed - Status:", response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error("API Health Check Error:", error);
+    return false;
+  }
 };
 
-export { tokenManagerObj as tokenManager };
-
-// API request wrapper with auth
-const apiRequest = async <T = any>(
+// Enhanced fetch with debugging
+export const apiRequest = async (
   endpoint: string,
   options: RequestInit = {}
-): Promise<ApiResponse<T>> => {
-  const token = tokenManagerObj.getToken();
+): Promise<Response> => {
+  const url = `${API_BASE_URL}${endpoint}`;
 
-  const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  console.log(`API Request: ${options.method || "GET"} ${url}`);
+  console.log("Request headers:", options.headers);
 
-  if (token) {
-    defaultHeaders.Authorization = `Bearer ${token}`;
+  if (options.body) {
+    console.log("Request body:", options.body);
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       ...options,
       headers: {
-        ...defaultHeaders,
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
 
-    const data = await response.json();
+    console.log(`API Response: ${response.status} ${response.statusText}`);
 
-    if (!response.ok) {
-      // Handle token expiration
-      if (response.status === 401 && data.message?.includes("expired")) {
-        tokenManagerObj.removeToken();
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth";
-        }
-      }
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
+    // Log response headers
+    console.log(
+      "Response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    // Check if response is HTML (usually means server error or wrong endpoint)
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      const htmlContent = await response.text();
+      console.error(
+        "Received HTML instead of JSON:",
+        htmlContent.substring(0, 200) + "..."
+      );
+      throw new Error(
+        "Server returned HTML instead of JSON. Check if API server is running correctly."
+      );
     }
 
-    return data;
+    return response;
   } catch (error) {
-    console.error("API request error:", error);
+    console.error(`API Request Error for ${url}:`, error);
     throw error;
   }
 };
 
-// Auth API functions
-const authApiObj = {
-  register: async (data: {
-    name: string;
-    email: string;
-    phone?: string;
-    password: string;
-    confirmPassword: string;
-  }): Promise<AuthData> => {
-    const response = await apiRequest<AuthData>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+// Test API Connection
+export const testApiConnection = async (): Promise<void> => {
+  console.log("=== API Connection Test ===");
+  console.log("API Base URL:", API_BASE_URL);
 
-    if (response.success && response.data) {
-      tokenManagerObj.setToken(response.data.token);
-      tokenManagerObj.setUser(response.data.user);
+  try {
+    // Test health endpoint
+    const isHealthy = await checkApiHealth();
+
+    if (!isHealthy) {
+      console.error("❌ API Health Check Failed");
+      console.error("Possible issues:");
+      console.error("1. API server is not running");
+      console.error("2. Wrong API URL");
+      console.error("3. CORS issues");
+      console.error("4. Network connectivity issues");
+    } else {
+      console.log("✅ API Health Check Passed");
     }
+  } catch (error) {
+    console.error("❌ API Connection Test Failed:", error);
+  }
 
-    return response.data!;
-  },
-
-  login: async (data: {
-    email: string;
-    password: string;
-  }): Promise<AuthData> => {
-    const response = await apiRequest<AuthData>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-
-    if (response.success && response.data) {
-      tokenManagerObj.setToken(response.data.token);
-      tokenManagerObj.setUser(response.data.user);
-    }
-
-    return response.data!;
-  },
-
-  logout: async (): Promise<void> => {
-    try {
-      await apiRequest("/auth/logout", {
-        method: "POST",
-      });
-    } finally {
-      tokenManagerObj.removeToken();
-    }
-  },
-
-  getProfile: async (): Promise<User> => {
-    const response = await apiRequest<{ user: User }>("/auth/profile");
-    return response.data!.user;
-  },
-
-  updateProfile: async (data: {
-    name?: string;
-    phone?: string;
-    birth_date?: string;
-    address?: string;
-  }): Promise<User> => {
-    const response = await apiRequest<{ user: User }>("/auth/profile", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-
-    if (response.success && response.data) {
-      tokenManagerObj.setUser(response.data.user);
-    }
-
-    return response.data!.user;
-  },
-
-  verifyToken: async (): Promise<boolean> => {
-    try {
-      await apiRequest("/auth/verify");
-      return true;
-    } catch {
-      return false;
-    }
-  },
+  console.log("=== End API Test ===");
 };
 
-export { authApiObj as authApi };
-export { apiRequest };
+export { API_BASE_URL };

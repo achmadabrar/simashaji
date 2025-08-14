@@ -25,6 +25,10 @@ apps/
 ├── api/ # Backend API service
 │ ├── node_modules/
 │ └── src/
+│ ├── middleware/
+│ │ ├── auth.js
+│ ├── routes/
+│ │ ├── auth.js
 │ └── index.js
 │ ├── .env.backup
 │ ├── package.json

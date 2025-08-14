@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 // JWT Secret - should be in environment variables
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-here";
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  "256ba5ed696ffccb259644c0ca18da7d98b10fdd1f227b847118b2d640211606";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 // Generate JWT Token
@@ -401,7 +403,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(

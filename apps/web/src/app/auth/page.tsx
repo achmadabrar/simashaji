@@ -2,10 +2,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import Logo from "../../assets/logo_simashaji.png";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios"; // untuk ambil profile
 
-// Icon components
+// Icon components (same as before)
 const Mail = ({
   size = 20,
   className = "",
@@ -153,6 +156,49 @@ const ArrowLeft = ({
   </svg>
 );
 
+const AlertCircle = ({
+  size = 20,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
+const CheckCircle = ({
+  size = 20,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22,4 12,14.01 9,11.01" />
+  </svg>
+);
+
 // Type definitions
 interface FormData {
   name?: string;
@@ -167,16 +213,48 @@ interface AuthProps {
   onBackToHome: () => void;
 }
 
+// Error Alert Component
+const ErrorAlert = ({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) => (
+  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
+    <AlertCircle className="text-red-500 mr-3" size={20} />
+    <p className="text-red-700 flex-1">{message}</p>
+    <button onClick={onClose} className="text-red-500 hover:text-red-700 ml-2">
+      ×
+    </button>
+  </div>
+);
+
+// Success Alert Component
+const SuccessAlert = ({ message }: { message: string }) => (
+  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
+    <CheckCircle className="text-green-500 mr-3" size={20} />
+    <p className="text-green-700">{message}</p>
+  </div>
+);
+
 const GoogleButton = ({
   onClick,
   text,
+  disabled = false,
 }: {
   onClick: () => void;
   text: string;
+  disabled?: boolean;
 }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center justify-center space-x-3 bg-white border-2 border-gray-300 rounded-lg px-4 py-3 hover:border-gray-400 hover:shadow-md transition-all duration-200"
+    disabled={disabled}
+    className={`w-full flex items-center justify-center space-x-3 bg-white border-2 border-gray-300 rounded-lg px-4 py-3 transition-all duration-200 ${
+      disabled
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:border-gray-400 hover:shadow-md"
+    }`}
   >
     <svg width="20" height="20" viewBox="0 0 24 24">
       <path
@@ -206,7 +284,12 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const { login, loading, error, clearError } = useAuth();
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -214,28 +297,80 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
       ...prev,
       [name]: value,
     }));
+    // Clear errors when user starts typing
+    if (localError) setLocalError(null);
+    if (error) clearError();
   };
 
-  const handleSubmit = async () => {
+  const validateForm = (): boolean => {
     if (!formData.email || !formData.password) {
-      alert("Harap isi semua field!");
-      return;
+      setLocalError("Email dan password wajib diisi!");
+      return false;
     }
 
-    setLoading(true);
+    if (!formData.email.includes("@")) {
+      setLocalError("Format email tidak valid!");
+      return false;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      alert("Login berhasil! Redirecting to dashboard...");
-      // Redirect ke dashboard
-    }, 1500);
+    return true;
   };
 
-  const handleGoogleLogin = () => {
-    alert("Redirecting to Google OAuth...");
-    // Implementasi Google OAuth
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+      await login(formData.email, formData.password);
+      setSuccessMessage("Login berhasil! Sedang mengarahkan...");
+      // The login function will handle redirect automatically
+    } catch (err: any) {
+      // Error is handled by useAuth hook
+      console.error("Login failed:", err.message);
+    }
   };
+
+  const handleGoogleLoginSuccess = async (credentialResponse: any) => {
+    try {
+      const token = credentialResponse.credential; // token dari Google
+      const res = await axios.post("http://localhost:5000/api/auth/google", {
+        token,
+      });
+
+      if (res.data.success) {
+        console.log("Login Google berhasil:", res.data);
+        localStorage.setItem("token", res.data.token);
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error("Login Google gagal:", err);
+    }
+  };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Ambil data profile user dari Google
+        const res = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+          }
+        );
+
+        console.log("Google User:", res.data);
+
+        // TODO: Kirim ke backend untuk login/registrasi
+        // await loginWithGoogle(res.data);
+      } catch (err) {
+        console.error("Login Google error:", err);
+      }
+    },
+    onError: (err) => console.error("Google Login Failed:", err),
+  });
+
+  const displayError = localError || error;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -244,6 +379,7 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
         <button
           onClick={onBackToHome}
           className="flex items-center text-gray-600 hover:text-blue-600 mb-6 transition-colors"
+          disabled={loading}
         >
           <ArrowLeft size={20} className="mr-2" />
           Kembali ke Beranda
@@ -253,7 +389,7 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16  flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Image
                 src={Logo}
                 alt="Simashaji Logo"
@@ -270,11 +406,35 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
             </p>
           </div>
 
+          {/* Success Message */}
+          {successMessage && <SuccessAlert message={successMessage} />}
+
+          {/* Error Alert */}
+          {displayError && (
+            <ErrorAlert
+              message={displayError}
+              onClose={() => {
+                setLocalError(null);
+                clearError();
+              }}
+            />
+          )}
+
           {/* Google Login */}
-          <GoogleButton
-            onClick={handleGoogleLogin}
-            text="Masuk dengan Google"
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={() => console.log("Login Google gagal")}
+            useOneTap
           />
+
+          {/* <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              console.log(credentialResponse);
+            }}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          /> */}
 
           {/* Divider */}
           <div className="flex items-center my-6">
@@ -284,7 +444,7 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
           </div>
 
           {/* Login Form */}
-          <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
@@ -302,6 +462,7 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   placeholder="nama@email.com"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -323,11 +484,13 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   placeholder="Masukkan password"
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -338,23 +501,30 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  disabled={loading}
                 />
                 <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
               </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:text-blue-700"
+                disabled={loading}
+              >
                 Lupa password?
-              </a>
+              </button>
             </div>
 
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Memproses..." : "Masuk"}
             </button>
-          </div>
+          </form>
 
           {/* Register Link */}
           <p className="text-center text-sm text-gray-600 mt-6">
@@ -362,6 +532,7 @@ const LoginForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
             <button
               onClick={onToggleMode}
               className="text-blue-600 hover:text-blue-700 font-medium"
+              disabled={loading}
             >
               Daftar sekarang
             </button>
@@ -382,8 +553,11 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const { register, loading, error, clearError } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -391,43 +565,77 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
       ...prev,
       [name]: value,
     }));
+    // Clear errors when user starts typing
+    if (localError) setLocalError(null);
+    if (error) clearError();
   };
 
-  const handleSubmit = async () => {
-    if (formData.password !== formData.confirmPassword) {
-      alert("Password tidak cocok!");
-      return;
-    }
-
-    if (!acceptTerms) {
-      alert("Harap setujui syarat dan ketentuan!");
-      return;
-    }
-
+  const validateForm = (): boolean => {
     if (
       !formData.name ||
       !formData.email ||
-      !formData.phone ||
-      !formData.password
+      !formData.password ||
+      !formData.confirmPassword
     ) {
-      alert("Harap isi semua field!");
-      return;
+      setLocalError("Semua field wajib diisi!");
+      return false;
     }
 
-    setLoading(true);
+    if (!formData.email.includes("@")) {
+      setLocalError("Format email tidak valid!");
+      return false;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      alert("Registrasi berhasil! Silakan cek email untuk verifikasi.");
-      onToggleMode(); // Switch to login
-    }, 1500);
+    if (formData.password.length < 8) {
+      setLocalError("Password minimal 8 karakter!");
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setLocalError("Password dan konfirmasi password tidak cocok!");
+      return false;
+    }
+
+    if (formData.phone && !/^[0-9+\-\s()]+$/.test(formData.phone)) {
+      setLocalError("Format nomor telepon tidak valid!");
+      return false;
+    }
+
+    if (!acceptTerms) {
+      setLocalError("Harap setujui syarat dan ketentuan!");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+      await register({
+        name: formData.name!,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword!,
+      });
+      setSuccessMessage("Registrasi berhasil! Sedang mengarahkan...");
+      // The register function will handle redirect automatically
+    } catch (err: any) {
+      // Error is handled by useAuth hook
+      console.error("Registration failed:", err.message);
+    }
   };
 
   const handleGoogleRegister = () => {
-    alert("Redirecting to Google OAuth for registration...");
-    // Implementasi Google OAuth
+    // Implement Google OAuth registration
+    setLocalError("Fitur registrasi Google belum tersedia.");
   };
+
+  const displayError = localError || error;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -436,6 +644,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
         <button
           onClick={onBackToHome}
           className="flex items-center text-gray-600 hover:text-blue-600 mb-6 transition-colors"
+          disabled={loading}
         >
           <ArrowLeft size={20} className="mr-2" />
           Kembali ke Beranda
@@ -445,7 +654,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16  flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Image
                 src={Logo}
                 alt="Simashaji Logo"
@@ -462,10 +671,25 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
             </p>
           </div>
 
+          {/* Success Message */}
+          {successMessage && <SuccessAlert message={successMessage} />}
+
+          {/* Error Alert */}
+          {displayError && (
+            <ErrorAlert
+              message={displayError}
+              onClose={() => {
+                setLocalError(null);
+                clearError();
+              }}
+            />
+          )}
+
           {/* Google Register */}
           <GoogleButton
             onClick={handleGoogleRegister}
             text="Daftar dengan Google"
+            disabled={loading}
           />
 
           {/* Divider */}
@@ -476,7 +700,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
           </div>
 
           {/* Register Form */}
-          <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nama Lengkap
@@ -494,6 +718,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   placeholder="Masukkan nama lengkap"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -515,13 +740,14 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   placeholder="nama@email.com"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nomor Telepon
+                Nomor Telepon <span className="text-gray-500">(Opsional)</span>
               </label>
               <div className="relative">
                 <Phone
@@ -535,7 +761,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   onChange={handleInputChange}
                   placeholder="08xxxxxxxxxx"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -558,11 +784,13 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                   minLength={8}
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -586,11 +814,13 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                   placeholder="Ulangi password"
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  disabled={loading}
                 >
                   {showConfirmPassword ? (
                     <EyeOff size={20} />
@@ -608,27 +838,34 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
                 checked={acceptTerms}
                 onChange={(e) => setAcceptTerms(e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mt-1"
+                disabled={loading}
               />
               <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
                 Saya setuju dengan{" "}
-                <a href="#" className="text-blue-600 hover:text-blue-700">
+                <a
+                  href="/terms-conditions"
+                  className="text-blue-600 hover:text-blue-700"
+                >
                   Syarat dan Ketentuan
                 </a>{" "}
                 serta{" "}
-                <a href="#" className="text-blue-600 hover:text-blue-700">
+                <a
+                  href="/privacy-policy"
+                  className="text-blue-600 hover:text-blue-700"
+                >
                   Kebijakan Privasi
                 </a>
               </label>
             </div>
 
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Memproses..." : "Daftar"}
             </button>
-          </div>
+          </form>
 
           {/* Login Link */}
           <p className="text-center text-sm text-gray-600 mt-6">
@@ -636,6 +873,7 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
             <button
               onClick={onToggleMode}
               className="text-blue-600 hover:text-blue-700 font-medium"
+              disabled={loading}
             >
               Masuk sekarang
             </button>
@@ -648,14 +886,14 @@ const RegisterForm: React.FC<AuthProps> = ({ onToggleMode, onBackToHome }) => {
 
 export default function AuthPages() {
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const router = useRouter();
 
   const toggleMode = () => {
     setIsLoginMode(!isLoginMode);
   };
 
   const backToHome = () => {
-    alert("Redirecting to home page...");
-    // Implementasi redirect ke home
+    router.push("/");
   };
 
   return (

@@ -1,25 +1,28 @@
+// src/app/layout.tsx (Simplified version without AuthProvider)
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff2",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff2",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
 
 export const metadata: Metadata = {
-  title: "Simashaji",
-  description: "",
+  title: "SIMASHAJI - Sistem Manajemen Asrama Haji",
+  description:
+    "Platform booking dan manajemen asrama haji yang mudah dan terpercaya",
+  keywords: ["asrama", "haji", "booking", "manajemen", "indonesia"],
+  authors: [{ name: "SIMASHAJI Team" }],
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -28,11 +31,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={` antialiased`}
       >
-        {children}
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          {children}
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
