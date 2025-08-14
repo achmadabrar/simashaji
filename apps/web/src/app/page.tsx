@@ -1165,12 +1165,17 @@ const SpaceDetailModal = ({
   );
 };
 
-const SearchSection = () => {
-  const [activeTab, setActiveTab] = useState<TabId>("ruang-rapat");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [location, setLocation] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [capacity, setCapacity] = useState<string>("");
+const SearchSection = ({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: TabId;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabId>>;
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState("");
+  const [capacity, setCapacity] = useState("");
 
   const tabs: Tab[] = [
     { id: "ruang-rapat", label: "Ruang Rapat", icon: Users },
@@ -1332,96 +1337,204 @@ const SearchSection = () => {
   );
 };
 
-const FeaturedSpaces = () => {
+const FeaturedSpaces = ({ activeTab }: { activeTab: TabId }) => {
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const spaces: Space[] = [
-    {
-      id: 1,
-      name: "Meeting Room Premium",
-      location: "Jakarta Selatan",
-      price: "150000",
-      rating: 4.8,
-      reviews: 124,
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=250&fit=crop",
-      features: ["WiFi", "Proyektor", "AC", "Coffee"],
-      description:
-        "Ruang meeting premium dengan fasilitas lengkap dan modern. Cocok untuk presentasi bisnis, workshop, dan rapat penting. Dilengkapi dengan teknologi terkini untuk mendukung produktivitas tim Anda.",
-      capacity: "10-15 orang",
-      area: "45 m²",
-      amenities: ["Whiteboard", "Flip Chart", "Sound System", "Parkir Gratis"],
-      policies: [
-        "Pembayaran dapat dilakukan melalui transfer bank atau tunai",
-        "Pembatalan dapat dilakukan 24 jam sebelum waktu booking",
-        "Dilarang merokok di dalam ruangan",
-        "Maksimal overtime 1 jam dengan biaya tambahan",
-        "Wajib menjaga kebersihan ruangan",
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1541746972996-4e0b0f93e586?w=600&h=400&fit=crop",
-      ],
-    },
-    {
-      id: 2,
-      name: "Grand Ballroom",
-      location: "Jakarta Pusat",
-      price: "2500000",
-      rating: 4.9,
-      reviews: 89,
-      image:
-        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=250&fit=crop",
-      features: ["Sound System", "Stage", "AC", "Catering"],
-      description:
-        "Ballroom mewah dengan kapasitas besar, ideal untuk event, seminar, dan celebration. Dilengkapi dengan stage profesional dan sistem audio visual berkualitas tinggi.",
-      capacity: "200-500 orang",
-      area: "500 m²",
-      amenities: ["LED Screen", "Lighting System", "Security", "Valet Parking"],
-      policies: [
-        "Booking minimal 7 hari sebelum acara",
-        "DP 50% saat konfirmasi booking",
-        "Pelunasan 3 hari sebelum acara",
-        "Decorasi dapat disesuaikan dengan kebutuhan",
-        "Catering dapat dari vendor sendiri atau rekomendasi kami",
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
-      ],
-    },
-    {
-      id: 3,
-      name: "Executive Suite",
-      location: "Jakarta Barat",
-      price: "350000",
-      rating: 4.7,
-      reviews: 67,
-      image:
-        "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop",
-      features: ["King Bed", "WiFi", "Mini Bar", "City View"],
-      description:
-        "Suite mewah dengan pemandangan kota yang menakjubkan. Dilengkapi dengan fasilitas premium untuk pengalaman menginap yang tak terlupakan.",
-      capacity: "2 orang",
-      area: "75 m²",
-      amenities: ["Room Service", "Laundry", "Gym Access", "Pool Access"],
-      policies: [
-        "Check-in 14:00, Check-out 12:00",
-        "Deposit Rp 500.000 saat check-in",
-        "Pembatalan gratis 48 jam sebelumnya",
-        "Extra bed tersedia dengan biaya tambahan",
-        "Smoking room dan non-smoking tersedia",
-      ],
-      gallery: [
-        "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&h=400&fit=crop",
-      ],
-    },
-  ];
+  // Mapping judul & deskripsi sesuai tab
+  const titles: Record<TabId, string> = {
+    "ruang-rapat": "Ruang Pilihan Terbaik",
+    aula: "Aula Terlengkap",
+    kamar: "Kamar Nyaman untuk Anda",
+    manasik: "Panduan Manasik Lengkap",
+  };
+
+  const descriptions: Record<TabId, string> = {
+    "ruang-rapat": "Dipilih khusus untuk pengalaman terbaik Anda",
+    aula: "Temukan aula terbaik untuk acara spesial Anda",
+    kamar: "Kamar pilihan dengan kenyamanan maksimal",
+    manasik: "Materi manasik haji & umrah yang komprehensif",
+  };
+
+  const allSpaces: Record<TabId, Space[]> = {
+    // ===================== RUANG RAPAT =====================
+    "ruang-rapat": [
+      {
+        id: 1,
+        name: "Meeting Room Premium",
+        location: "Jakarta Selatan",
+        price: "150000",
+        rating: 4.8,
+        reviews: 124,
+        image:
+          "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=250&fit=crop",
+        features: ["WiFi", "Proyektor", "AC", "Coffee"],
+        description:
+          "Ruang meeting premium dengan fasilitas lengkap dan modern. Cocok untuk presentasi bisnis, workshop, dan rapat penting.",
+        capacity: "10-15 orang",
+        area: "45 m²",
+        amenities: [
+          "Whiteboard",
+          "Flip Chart",
+          "Sound System",
+          "Parkir Gratis",
+        ],
+        policies: [
+          "Pembayaran dapat dilakukan melalui transfer bank atau tunai",
+          "Pembatalan dapat dilakukan 24 jam sebelum waktu booking",
+          "Dilarang merokok di dalam ruangan",
+          "Maksimal overtime 1 jam dengan biaya tambahan",
+          "Wajib menjaga kebersihan ruangan",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop",
+        ],
+      },
+      {
+        id: 2,
+        name: "Meeting Room Standard",
+        location: "Bandung",
+        price: "100000",
+        rating: 4.5,
+        reviews: 85,
+        image:
+          "https://images.unsplash.com/photo-1589820296156-d5bdc8a71c2d?w=400&h=250&fit=crop",
+        features: ["WiFi", "AC", "Whiteboard"],
+        description:
+          "Ruang meeting standar untuk pertemuan kecil hingga menengah, dilengkapi fasilitas dasar yang nyaman.",
+        capacity: "8-12 orang",
+        area: "30 m²",
+        amenities: ["Whiteboard", "Air Minum", "Parkir Gratis"],
+        policies: [
+          "Pembayaran di muka 100%",
+          "Bisa reschedule 1x tanpa biaya",
+          "Dilarang membawa makanan berat",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1589820296156-d5bdc8a71c2d?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1593113674529-7b7d974dc9f9?w=600&h=400&fit=crop",
+        ],
+      },
+    ],
+
+    // ===================== AULA =====================
+    aula: [
+      {
+        id: 1,
+        name: "Grand Ballroom",
+        location: "Jakarta Pusat",
+        price: "2500000",
+        rating: 4.9,
+        reviews: 89,
+        image:
+          "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=250&fit=crop",
+        features: ["Sound System", "Stage", "AC", "Catering"],
+        description:
+          "Ballroom mewah dengan kapasitas besar, ideal untuk event, seminar, dan perayaan besar.",
+        capacity: "200-500 orang",
+        area: "500 m²",
+        amenities: [
+          "LED Screen",
+          "Lighting System",
+          "Security",
+          "Valet Parking",
+        ],
+        policies: [
+          "Booking minimal 7 hari sebelum acara",
+          "DP 50% saat konfirmasi booking",
+          "Pelunasan 3 hari sebelum acara",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=600&h=400&fit=crop",
+        ],
+      },
+    ],
+
+    // ===================== KAMAR =====================
+    kamar: [
+      {
+        id: 1,
+        name: "Executive Suite",
+        location: "Jakarta Barat",
+        price: "350000",
+        rating: 4.7,
+        reviews: 67,
+        image:
+          "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop",
+        features: ["King Bed", "WiFi", "Mini Bar", "City View"],
+        description:
+          "Suite mewah dengan pemandangan kota yang menakjubkan. Dilengkapi fasilitas premium untuk pengalaman menginap terbaik.",
+        capacity: "2 orang",
+        area: "75 m²",
+        amenities: ["Room Service", "Laundry", "Gym Access", "Pool Access"],
+        policies: [
+          "Check-in 14:00, Check-out 12:00",
+          "Deposit Rp 500.000 saat check-in",
+          "Pembatalan gratis 48 jam sebelumnya",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop",
+        ],
+      },
+      {
+        id: 2,
+        name: "Standard Room",
+        location: "Bandung",
+        price: "200000",
+        rating: 4.5,
+        reviews: 45,
+        image:
+          "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=400&h=250&fit=crop",
+        features: ["Queen Bed", "WiFi", "AC"],
+        description:
+          "Kamar nyaman untuk perjalanan bisnis maupun liburan singkat.",
+        capacity: "2 orang",
+        area: "30 m²",
+        amenities: ["Breakfast", "TV", "Parkir Gratis"],
+        policies: [
+          "Check-in 14:00, Check-out 12:00",
+          "Pembatalan maksimal 24 jam sebelumnya",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop",
+        ],
+      },
+    ],
+
+    // ===================== MANASIK =====================
+    manasik: [
+      {
+        id: 1,
+        name: "Panduan Manasik Lengkap",
+        location: "UPT Asrama Haji Bekasi",
+        price: "0",
+        rating: 5.0,
+        reviews: 150,
+        image:
+          "https://images.unsplash.com/photo-1551475559-dbe8ba1a68c5?w=400&h=250&fit=crop",
+        features: ["Panduan Haji", "Panduan Umrah", "Video Tutorial"],
+        description:
+          "Panduan lengkap tata cara manasik haji & umrah untuk membantu jamaah memahami setiap tahapan ibadah.",
+        capacity: "Tidak Terbatas",
+        area: "-",
+        amenities: ["Download PDF", "Akses Video", "Materi Doa"],
+        policies: [
+          "Materi ini gratis untuk semua jamaah",
+          "Dapat diakses kapan saja",
+        ],
+        gallery: [
+          "https://images.unsplash.com/photo-1551475559-dbe8ba1a68c5?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&h=400&fit=crop",
+        ],
+      },
+    ],
+  };
+
+  const spaces = allSpaces[activeTab] || [];
 
   const getFeatureIcon = (feature: string): React.ReactNode => {
     switch (feature) {
@@ -1447,11 +1560,9 @@ const FeaturedSpaces = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ruang Pilihan Terbaik
+              {titles[activeTab]}
             </h2>
-            <p className="text-gray-600">
-              Dipilih khusus untuk pengalaman terbaik Anda
-            </p>
+            <p className="text-gray-600">{descriptions[activeTab]}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -1674,11 +1785,13 @@ const Footer = () => (
 );
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<TabId>("ruang-rapat");
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <SearchSection />
-      <FeaturedSpaces />
+      <SearchSection activeTab={activeTab} setActiveTab={setActiveTab} />
+      <FeaturedSpaces activeTab={activeTab} />
       <WhyChooseUs />
       <Footer />
     </div>
