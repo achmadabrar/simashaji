@@ -1,0 +1,5 @@
+# filepath: /.gitignore
+.env
+packages/db/.env
+node_modules/
+dist/
