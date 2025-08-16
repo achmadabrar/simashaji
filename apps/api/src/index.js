@@ -1,17 +1,17 @@
 // apps/api/src/index.js
+import dotenv from "dotenv";
+dotenv.config({ path: "../../.env" });
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { PrismaClient } from "@prisma/client";
 import Midtrans from "midtrans-client";
-import dotenv from "dotenv";
 import passport from "./config/passport.js";
 
 // Import route modules
 import authRoutes from "./routes/auth.js";
-
-dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 const app = express();

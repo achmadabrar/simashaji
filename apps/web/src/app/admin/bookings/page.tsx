@@ -250,9 +250,9 @@ export default function AdminBookingsPage() {
       {/* Filter */}
       <div className="bg-white p-4 rounded-lg shadow mb-6 flex gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+          <Search className="absolute left-3 top-3 text-black" size={20} />
           <input
-            className="w-full pl-10 pr-4 py-2 border rounded-lg"
+            className="w-full pl-10 pr-4 py-2 border rounded-lg text-black"
             placeholder="Cari booking..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

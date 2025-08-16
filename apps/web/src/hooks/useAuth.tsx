@@ -76,7 +76,7 @@ export const useAuth = () => {
         localStorage.setItem("user_data", JSON.stringify(data.data.user));
 
         // Redirect to user dashboard
-        router.push("/user");
+        router.push("/users/user");
       } else {
         throw new Error(data.message || "Login failed");
       }

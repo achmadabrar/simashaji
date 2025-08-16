@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import Logo from "../../assets/logo_simashaji.png";
+import Logo from "../../../assets/logo_simashaji.png";
 
 // Simple icon components as SVG
 const Search = ({ size = 20, className = "" }) => (
@@ -18,6 +18,13 @@ const Search = ({ size = 20, className = "" }) => (
     <path d="21 21l-4.35-4.35" />
   </svg>
 );
+
+import {
+  TotalBookingIcon,
+  ActiveBookingIcon,
+  FavoriteIcon,
+  RewardPointsIcon,
+} from "../../../components/DashboardICons";
 
 const MapPin = ({ size = 20, className = "" }) => (
   <svg

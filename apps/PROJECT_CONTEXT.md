@@ -119,6 +119,105 @@ Edit
 | `/user`             | _(folder)_                     | User main page                         |
 | `/user-profile`     | _(folder)_                     | User profile details                   |
 
+apps/
+┣ api/
+┃ ┣ src/
+┃ ┃ ┣ config/
+┃ ┃ ┃ ┗ passport.js
+┃ ┃ ┣ middleware/
+┃ ┃ ┃ ┗ auth.js
+┃ ┃ ┣ routes/
+┃ ┃ ┃ ┗ auth.js
+┃ ┃ ┗ index.js
+┃ ┣ .env.backup
+┃ ┣ .env.backup2
+┃ ┣ package-lock.json
+┃ ┣ package.json
+┃ ┗ test-jwt.js
+┣ web/
+┃ ┣ public/
+┃ ┃ ┣ file.svg
+┃ ┃ ┣ globe.svg
+┃ ┃ ┣ next.svg
+┃ ┃ ┣ vercel.svg
+┃ ┃ ┗ window.svg
+┃ ┣ src/
+┃ ┃ ┣ app/
+┃ ┃ ┃ ┣ admin/
+┃ ┃ ┃ ┃ ┣ add-space/
+┃ ┃ ┃ ┃ ┣ admins/
+┃ ┃ ┃ ┃ ┣ asrama/
+┃ ┃ ┃ ┃ ┣ bookings/
+┃ ┃ ┃ ┃ ┣ reports/
+┃ ┃ ┃ ┃ ┗ layout.tsx
+┃ ┃ ┃ ┣ auth/
+┃ ┃ ┃ ┃ ┣ login/
+┃ ┃ ┃ ┃ ┗ register/
+┃ ┃ ┃ ┣ faq/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ fav/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ hall/
+┃ ┃ ┃ ┃ ┣ hall.tsx
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ history/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ manasik/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ meeting-room/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ rooms/
+┃ ┃ ┃ ┃ ┣ page.tsx
+┃ ┃ ┃ ┃ ┗ test.tsx
+┃ ┃ ┃ ┣ terms-conditions/
+┃ ┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┃ ┣ users/
+┃ ┃ ┃ ┃ ┣ mybookings/
+┃ ┃ ┃ ┃ ┣ setting/
+┃ ┃ ┃ ┃ ┣ user/
+┃ ┃ ┃ ┃ ┗ user-profile/
+┃ ┃ ┃ ┣ favicon.ico
+┃ ┃ ┃ ┣ globals.css
+┃ ┃ ┃ ┣ layout.tsx
+┃ ┃ ┃ ┣ page-old.tsx
+┃ ┃ ┃ ┗ page.tsx
+┃ ┃ ┣ assets/
+┃ ┃ ┃ ┣ chat*icon.svg
+┃ ┃ ┃ ┣ logo_simashaji.png
+┃ ┃ ┃ ┣ logo_simashaji*.png
+┃ ┃ ┃ ┣ search_icon.png
+┃ ┃ ┃ ┗ star.png
+┃ ┃ ┣ components/
+┃ ┃ ┃ ┣ ApiDebug.tsx
+┃ ┃ ┃ ┣ AuthComponents.tsx
+┃ ┃ ┃ ┣ DashboardIcons.tsx
+┃ ┃ ┃ ┣ Footer.tsx
+┃ ┃ ┃ ┣ Header.tsx
+┃ ┃ ┃ ┣ ProtectedRoute.tsx
+┃ ┃ ┃ ┣ SpaceCard.tsx
+┃ ┃ ┃ ┣ SpaceList.tsx
+┃ ┃ ┃ ┗ Tabs.tsx
+┃ ┃ ┣ data/
+┃ ┃ ┃ ┗ spaces.ts
+┃ ┃ ┣ hooks/
+┃ ┃ ┃ ┗ useAuth.tsx
+┃ ┃ ┣ lib/
+┃ ┃ ┃ ┣ api-1.ts
+┃ ┃ ┃ ┗ api.ts
+┃ ┃ ┗ providers/
+┃ ┃ ┗ AuthProvider.tsx
+┃ ┣ .env.local
+┃ ┣ .gitignore
+┃ ┣ README.md
+┃ ┣ eslint.config.mjs
+┃ ┣ next-env.d.ts
+┃ ┣ next.config.ts
+┃ ┣ package-lock.json
+┃ ┣ package.json
+┃ ┣ postcss.config.mjs
+┃ ┗ tsconfig.json
+┗ PROJECT_CONTEXT.md
+
 ---
 
 ## 📌 Notes

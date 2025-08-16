@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "apps/api/node_modules": true,
+    "packages/db/node_modules": true
+  },
+  "file-tree-generator.exclude": ["**/node_modules", "node_modules"]
+}
