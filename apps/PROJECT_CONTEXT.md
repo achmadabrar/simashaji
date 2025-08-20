@@ -101,24 +101,6 @@ Edit
 
 ### **Frontend Pages (Next.js)**
 
-| Path                | File                           | Description                            |
-| ------------------- | ------------------------------ | -------------------------------------- |
-| `/`                 | `page.tsx`                     | Landing page                           |
-| `/admin-dashboard`  | `app/admin-dashboard/page.tsx` | Admin dashboard                        |
-| `/auth`             | _(folder)_                     | Authentication pages (login, register) |
-| `/faq`              | _(folder)_                     | Frequently Asked Questions             |
-| `/fav`              | _(folder)_                     | Favorite items/bookings                |
-| `/hall`             | _(folder)_                     | Hall information page                  |
-| `/history`          | _(folder)_                     | Booking or usage history               |
-| `/manasik`          | _(folder)_                     | Manasik manasik page                   |
-| `/meeting-room`     | _(folder)_                     | Meeting room details                   |
-| `/my-bookings`      | _(folder)_                     | User's active bookings                 |
-| `/rooms`            | _(folder)_                     | Rooms listing/details                  |
-| `/setting`          | _(folder)_                     | User settings                          |
-| `/terms-conditions` | _(folder)_                     | Terms & conditions                     |
-| `/user`             | _(folder)_                     | User main page                         |
-| `/user-profile`     | _(folder)_                     | User profile details                   |
-
 apps/
 ┣ api/
 ┃ ┣ src/
@@ -145,14 +127,21 @@ apps/
 ┃ ┃ ┣ app/
 ┃ ┃ ┃ ┣ admin/
 ┃ ┃ ┃ ┃ ┣ add-space/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ admins/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ asrama/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ bookings/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ reports/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┗ layout.tsx
 ┃ ┃ ┃ ┣ auth/
 ┃ ┃ ┃ ┃ ┣ login/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┗ register/
+┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┣ faq/
 ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┣ fav/
@@ -173,9 +162,13 @@ apps/
 ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┣ users/
 ┃ ┃ ┃ ┃ ┣ mybookings/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ setting/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┣ user/
+┃ ┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┃ ┗ user-profile/
+┃ ┃ ┃ ┃ ┗ page.tsx
 ┃ ┃ ┃ ┣ favicon.ico
 ┃ ┃ ┃ ┣ globals.css
 ┃ ┃ ┃ ┣ layout.tsx
